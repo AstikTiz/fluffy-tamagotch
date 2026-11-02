@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stopColor="#292524" />
+      <stop offset="100%" stopColor="#0c0a09" />
+    </radialGradient>
+    <radialGradient id="feltGrad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stopColor="#f7e5b5" />
+      <stop offset="60%" stopColor="#e5a93b" />
+      <stop offset="100%" stopColor="#b45309" />
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <!-- Shadow -->
+  <ellipse cx="256" cy="440" rx="150" ry="30" fill="rgba(0,0,0,0.5)" />
+  <!-- Ears -->
+  <path d="M 180 200 C 140 40 180 20 205 160 Z" fill="url(#feltGrad)" stroke="#92400e" stroke-width="6" />
+  <path d="M 182 180 C 165 70 182 50 198 150 Z" fill="#fbcfe8" opacity="0.85" />
+  <path d="M 332 200 C 372 40 332 20 307 160 Z" fill="url(#feltGrad)" stroke="#92400e" stroke-width="6" />
+  <path d="M 330 180 C 347 70 330 50 314 150 Z" fill="#fbcfe8" opacity="0.85" />
+  <!-- Body -->
+  <ellipse cx="256" cy="310" rx="145" ry="135" fill="url(#feltGrad)" stroke="#92400e" stroke-width="6" />
+  <!-- Belly -->
+  <ellipse cx="256" cy="340" rx="95" ry="85" fill="#fef3c7" stroke="#ca8a04" stroke-width="3" />
+  <!-- Eyes (button glass) -->
+  <ellipse cx="205" cy="270" rx="22" ry="26" fill="#1c1917" />
+  <circle cx="198" cy="260" r="8" fill="#ffffff" />
+  <ellipse cx="307" cy="270" rx="22" ry="26" fill="#1c1917" />
+  <circle cx="300" cy="260" r="8" fill="#ffffff" />
+  <!-- Nose -->
+  <polygon points="245,295 267,295 256,308" fill="#9f1239" />
+  <!-- Smile -->
+  <path d="M 238 315 Q 248 326 256 318 Q 264 326 274 315" stroke="#1c1917" stroke-width="5" stroke-linecap="round" fill="none" />
+  <!-- Hat (1950s Newsboy Cap) -->
+  <ellipse cx="256" cy="180" rx="75" ry="32" fill="#78716c" stroke="#44403c" stroke-width="4" />
+  <path d="M 200 190 Q 256 210 312 190" stroke="#292524" stroke-width="8" fill="none" stroke-linecap="round" />
+  <circle cx="256" cy="168" r="8" fill="#292524" />
+  <!-- Scarf -->
+  <path d="M 180 370 C 220 395 292 395 332 370 C 340 385 320 405 256 405 C 192 405 172 385 180 370 Z" fill="#dc2626" stroke="#991b1b" stroke-width="4" />
+  <line x1="210" y1="375" x2="220" y2="395" stroke="#ffffff" stroke-width="8" />
+  <line x1="256" y1="380" x2="256" y2="405" stroke="#ffffff" stroke-width="8" />
+  <line x1="302" y1="375" x2="292" y2="395" stroke="#ffffff" stroke-width="8" />
+</svg>

@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* 1950s Stop-motion stepped puppet keyframes */
+@keyframes stopMotionBob {
+  0% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  20% {
+    transform: translateY(-2px) rotate(0.8deg) scale(1.02, 0.98);
+  }
+  40% {
+    transform: translateY(-4px) rotate(-0.5deg) scale(1.03, 0.97);
+  }
+  60% {
+    transform: translateY(-2px) rotate(0.6deg) scale(1.01, 0.99);
+  }
+  80% {
+    transform: translateY(0px) rotate(-0.4deg) scale(0.99, 1.01);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes earWiggleAnim {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3.5deg);
+  }
+  75% {
+    transform: rotate(3.5deg);
+  }
+}
+
+@keyframes fadeInAnim {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInAnim 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-wiggle {
+  animation: earWiggleAnim 2s steps(4) infinite;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Hide scrollbar for tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
