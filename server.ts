@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
-import archiver from 'archiver';
+import * as archiverModule from 'archiver';
+const archiver: any = (archiverModule as any).default || archiverModule;
 
 const app = express();
 const PORT = process.env.PORT || 3000;

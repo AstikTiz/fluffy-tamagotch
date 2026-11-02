@@ -23,6 +23,7 @@ import {
   FolderHeart,
   MessageCircle,
   BookOpen,
+  Smartphone,
 } from 'lucide-react';
 
 interface AndroidWidgetContainerProps {
