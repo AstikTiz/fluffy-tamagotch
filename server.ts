@@ -2,8 +2,7 @@ import express, { Request, Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
-import * as archiverModule from 'archiver';
-const archiver: any = (archiverModule as any).default || archiverModule;
+import JSZip from 'jszip';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -148,28 +147,39 @@ app.get('/api/mail/:code', (req: Request, res: Response) => {
 });
 
 // Download full project source as ZIP archive
-app.get('/api/export-project-zip', (req: Request, res: Response) => {
+app.get('/api/export-project-zip', async (req: Request, res: Response) => {
   try {
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const zip = new JSZip();
 
-    res.attachment('fluffy-tamagotchi-project.zip');
+    function addDirectory(currentPath: string, rootRelative = '') {
+      const items = fs.readdirSync(currentPath);
+      for (const item of items) {
+        if (['node_modules', 'dist', '.git', '.data'].includes(item)) continue;
+        const fullPath = path.join(currentPath, item);
+        const relPath = rootRelative ? `${rootRelative}/${item}` : item;
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) {
+          addDirectory(fullPath, relPath);
+        } else {
+          zip.file(relPath, fs.readFileSync(fullPath));
+        }
+      }
+    }
 
-    archive.on('error', (err: any) => {
-      console.error('Archive error:', err);
-      res.status(500).send({ error: err.message });
+    addDirectory(process.cwd());
+
+    const buffer = await zip.generateAsync({
+      type: 'nodebuffer',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 6 },
     });
 
-    archive.pipe(res);
-
-    archive.glob('**/*', {
-      cwd: process.cwd(),
-      ignore: ['node_modules/**', 'dist/**', '.git/**', '.data/**']
-    });
-
-    archive.finalize();
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename="fluffy-tamagotchi-project.zip"');
+    res.send(buffer);
   } catch (error: any) {
     console.error('Export zip error:', error);
-    res.status(500).json({ error: 'Failed to create zip archive' });
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -28,8 +28,42 @@ export const ExportInstallModal: React.FC<ExportInstallModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'pwa' | 'apk_github' | 'zip'>('pwa');
   const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const handleDownloadZip = async () => {
+    try {
+      setIsDownloading(true);
+      setDownloadError(null);
+      setDownloadSuccess(false);
+      sounds.playPop();
+
+      const res = await fetch('/api/export-project-zip');
+      if (!res.ok) throw new Error('Сервер вернул статус ' + res.status);
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'fluffy-tamagotchi-project.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      setDownloadSuccess(true);
+      sounds.playLevelUp();
+      setTimeout(() => setDownloadSuccess(false), 5000);
+    } catch (err: any) {
+      console.error(err);
+      setDownloadError('Ошибка скачивания: ' + err.message);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -205,12 +239,30 @@ npx cap open android`;
                 </p>
               </div>
 
-              {/* Instructions to push to GitHub */}
+              {/* Direct assistant push callout */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/50 to-teal-950/50 border border-emerald-500/40 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <h4 className="text-xs font-black text-emerald-200 uppercase tracking-wide">
+                    Загрузка на GitHub силами ассистента прямо из чата
+                  </h4>
+                </div>
+                <p className="text-xs text-emerald-100/90 leading-relaxed">
+                  Вам не обязательно клонировать репозиторий и вводить команды вручную! Напишите ассистенту в чате:
+                </p>
+                <div className="p-2.5 rounded-xl bg-black/40 border border-emerald-500/20 text-xs text-stone-200 font-mono">
+                  1. Ссылку на ваш GitHub-репозиторий (например, <span className="text-amber-300">https://github.com/ВАШ_ЛОГИН/fluffy-tamagotchi</span>)<br/>
+                  2. GitHub Personal Access Token (PAT) с правом <span className="text-emerald-300">repo</span> (создаётся на <span className="text-cyan-300">github.com/settings/tokens</span>)<br/>
+                  И ассистент одной командой выполнит <code>git push</code> в ваш репозиторий!
+                </div>
+              </div>
+
+              {/* Instructions to push manually */}
               <div className="p-4 rounded-2xl bg-stone-950/60 border border-stone-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-amber-200 flex items-center gap-1.5">
                     <Terminal className="w-4 h-4 text-emerald-400" />
-                    <span>Команды для отправки в ваш репозиторий GitHub:</span>
+                    <span>Ручная отправка через консоль:</span>
                   </h4>
                   <button
                     onClick={() => copyToClipboard(gitCommands, 'git')}
@@ -249,26 +301,50 @@ npx cap open android`;
 
           {activeTab === 'zip' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-stone-800/60 border border-stone-700 space-y-3 text-center py-8">
+              <div className="p-6 rounded-2xl bg-stone-800/60 border border-stone-700 space-y-4 text-center py-8">
                 <div className="w-16 h-16 rounded-3xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto shadow-inner text-2xl">
                   📦
                 </div>
-                <h3 className="text-base font-extrabold text-white">
-                  Полный архив исходного кода проекта
-                </h3>
-                <p className="text-xs text-stone-400 max-w-md mx-auto leading-relaxed">
-                  Скачайте чистый ZIP-архив со всеми файлами проекта: кодом тамагочи 1950-х, стилями, анимациями, серверным бэкендом и скриптами сборки APK.
-                </p>
+                <div className="space-y-1">
+                  <h3 className="text-base font-extrabold text-white">
+                    Полный архив исходного кода проекта
+                  </h3>
+                  <p className="text-xs text-stone-400 max-w-md mx-auto leading-relaxed">
+                    Чистый ZIP-архив со всеми файлами: кукольный тамагочи 1950-х, стили, анимации, серверный бэкенд и workflow для сборки APK.
+                  </p>
+                </div>
 
-                <a
-                  href="/api/export-project-zip"
-                  download="fluffy-tamagotchi-project.zip"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-500/25 hover:from-emerald-400 hover:to-teal-400 active:scale-95 transition-all"
-                  onClick={() => sounds.playLevelUp()}
-                >
-                  <Download className="w-4 h-4 stroke-[3]" />
-                  <span>Скачать fluffy-tamagotchi.zip</span>
-                </a>
+                {downloadError && (
+                  <div className="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-xs text-rose-300">
+                    {downloadError}
+                  </div>
+                )}
+
+                {downloadSuccess && (
+                  <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-xs text-emerald-300 font-bold flex items-center justify-center gap-2">
+                    <Check className="w-4 h-4" />
+                    <span>Архив успешно скачан!</span>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    onClick={handleDownloadZip}
+                    disabled={isDownloading}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-500/25 hover:from-emerald-400 hover:to-teal-400 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    <Download className={`w-4 h-4 stroke-[3] ${isDownloading ? 'animate-bounce' : ''}`} />
+                    <span>{isDownloading ? 'Формирование архива...' : 'Скачать архив ZIP (быстро)'}</span>
+                  </button>
+
+                  <a
+                    href="/api/export-project-zip"
+                    download="fluffy-tamagotchi-project.zip"
+                    className="text-xs text-stone-400 hover:text-amber-300 underline p-2"
+                  >
+                    Прямая ссылка на файл
+                  </a>
+                </div>
               </div>
             </div>
           )}
