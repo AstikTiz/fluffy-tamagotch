@@ -1,0 +1,75 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'android/**'
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'vite.config.ts'
+      - '.github/workflows/android-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Build web (relative paths for file://)
+        run: npx vite build --base=./ --outDir dist-apk
+
+      - name: Copy web assets into Android app
+        run: |
+          rm -rf android/app/src/main/assets/www
+          mkdir -p android/app/src/main/assets/www
+          cp -r dist-apk/. android/app/src/main/assets/www/
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Assemble debug APK
+        working-directory: android
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Collect APK
+        run: |
+          mkdir -p out
+          find android/app/build/outputs/apk/debug -name '*.apk' -exec cp {} out/fluffy-tamagotch-debug.apk \;
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fluffy-tamagotch-apk
+          path: out/fluffy-tamagotch-debug.apk
+          if-no-files-found: error
+
+      - name: Publish to Releases (rolling tag)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: APK (debug, latest)
+          body: |
+            Debug APK, собран из ветки ${{ github.ref_name }} (${{ github.sha }}).
+            Ставится на телефон вручную, разрешив установку из неизвестного источника.
+          files: out/fluffy-tamagotch-debug.apk
+          prerelease: true
