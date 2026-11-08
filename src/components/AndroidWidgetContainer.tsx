@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Pet, ReactionState, EmotionFood, IncomingLetter, AndroidWidgetSize } from '../types';
 import { FluffyPetAvatar } from './FluffyPetAvatar';
-import { sounds } from '../utils/audio';
 import {
   Sparkles,
   Footprints,
@@ -11,19 +10,8 @@ import {
   Users,
   Volume2,
   VolumeX,
-  Maximize2,
-  Minimize2,
-  Sliders,
-  Wifi,
-  BatteryCharging,
-  Layers,
-  Move,
-  Settings,
-  Camera,
   FolderHeart,
-  MessageCircle,
   BookOpen,
-  Smartphone,
 } from 'lucide-react';
 
 interface AndroidWidgetContainerProps {
@@ -60,12 +48,8 @@ export const AndroidWidgetContainer: React.FC<AndroidWidgetContainerProps> = ({
   letters,
 }) => {
   // Widget size state (2x2, 3x3, 4x2, 4x3, 4x4)
-  const [widgetSize, setWidgetSize] = useState<AndroidWidgetSize>('4x3');
-  const [isResizeMode, setIsResizeMode] = useState<boolean>(false);
-  const [isTransparent, setIsTransparent] = useState<boolean>(false);
-
-  // Custom dragged dimension scaling
-  const [customScale, setCustomScale] = useState<number>(1.0);
+  const [widgetSize] = useState<AndroidWidgetSize>('4x3');
+  const [isTransparent] = useState<boolean>(false);
 
   const unreadCount = letters.filter((l) => !l.read).length;
   const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -114,121 +98,12 @@ export const AndroidWidgetContainer: React.FC<AndroidWidgetContainerProps> = ({
         <div className="absolute bottom-20 right-1/4 w-80 h-80 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
       </div>
 
-      {/* Android Top Status Bar */}
-      <div className="w-full px-6 py-2 bg-black/40 backdrop-blur-md flex items-center justify-between text-xs font-bold text-stone-300 z-30">
-        <div className="flex items-center gap-2">
-          <span>{currentTime}</span>
-          <span className="text-[10px] text-amber-400 font-normal">🐾 Fluffy Android</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-[11px]">
-            <span>5G</span>
-            <Wifi className="w-3.5 h-3.5 text-stone-300" />
-          </div>
-          <div className="flex items-center gap-1 text-[11px]">
-            <span>94%</span>
-            <BatteryCharging className="w-4 h-4 text-emerald-400" />
-          </div>
-        </div>
-      </div>
-
-      {/* Android Widget Control & Resizing Bar */}
-      <div className="px-4 py-2 bg-stone-900/60 border-b border-stone-800 flex flex-wrap items-center justify-between gap-2 text-xs z-20">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
-            <Layers className="w-3.5 h-3.5" />
-            <span>Размер Android-виджета:</span>
-          </span>
-
-          <div className="flex items-center gap-1 bg-stone-950 p-1 rounded-xl border border-stone-800">
-            {(['2x2', '3x3', '4x2', '4x3', '4x4'] as AndroidWidgetSize[]).map((sz) => (
-              <button
-                key={sz}
-                onClick={() => {
-                  sounds.playPop();
-                  setWidgetSize(sz);
-                }}
-                className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
-                  widgetSize === sz
-                    ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
-                    : 'text-stone-400 hover:text-white'
-                }`}
-              >
-                {sz}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              sounds.playPop();
-              setIsResizeMode(!isResizeMode);
-            }}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold border transition-colors ${
-              isResizeMode
-                ? 'bg-amber-500/20 border-amber-400 text-amber-300'
-                : 'bg-stone-800 border-stone-700 text-stone-400 hover:text-white'
-            }`}
-          >
-            <Move className="w-3.5 h-3.5" />
-            <span>{isResizeMode ? 'Готово' : 'Рамка размера'}</span>
-          </button>
-
-          <button
-            onClick={() => {
-              sounds.playPop();
-              setIsTransparent(!isTransparent);
-            }}
-            className="px-2.5 py-1 rounded-xl bg-stone-800 border border-stone-700 text-stone-300 hover:text-white text-xs font-bold"
-          >
-            {isTransparent ? 'Фон: Прозрачный' : 'Фон: Карточка'}
-          </button>
-
-          <button
-            onClick={() => {
-              sounds.playPop();
-              onOpenExportInstall();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all shadow-sm"
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>APK / GitHub</span>
-          </button>
-        </div>
-      </div>
-
       {/* Main Android Home Screen Canvas */}
       <main className="relative flex-1 flex flex-col items-center justify-center p-4 z-10">
         {/* Resizable Android Widget Wrapper */}
         <div
-          className={`relative transition-all duration-300 ${getWidgetWidthClass()} flex flex-col items-center justify-center ${
-            isResizeMode ? 'ring-2 ring-amber-400 ring-offset-4 ring-offset-stone-950' : ''
-          }`}
-          style={{ transform: `scale(${customScale})` }}
+          className={`relative transition-all duration-300 ${getWidgetWidthClass()} flex flex-col items-center justify-center`}
         >
-          {/* Interactive Android Widget Resize Handles (visible when resize mode active) */}
-          {isResizeMode && (
-            <>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow-lg cursor-ns-resize flex items-center justify-center text-[10px] text-stone-950 font-black">
-                ↕
-              </div>
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow-lg cursor-ns-resize flex items-center justify-center text-[10px] text-stone-950 font-black">
-                ↕
-              </div>
-              <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow-lg cursor-ew-resize flex items-center justify-center text-[10px] text-stone-950 font-black">
-                ↔
-              </div>
-              <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow-lg cursor-ew-resize flex items-center justify-center text-[10px] text-stone-950 font-black">
-                ↔
-              </div>
-              <div className="absolute -top-7 right-0 text-[10px] bg-amber-500 text-stone-950 font-black px-2 py-0.5 rounded-full shadow">
-                Сетка: {widgetSize}
-              </div>
-            </>
-          )}
-
           {/* Actual Widget Inner Body */}
           <div
             className={`w-full h-full rounded-[32px] p-4 transition-all duration-300 flex flex-col justify-between ${
